@@ -1,7 +1,7 @@
 ---
 # defaults file for ansible_role_template_tree
-template_tree_src_dir: /opt/templates/app/config
-template_tree_dest_dir: /etc/app
+#template_tree_src_dir: /opt/templates/app/config
+#template_tree_dest_dir: /tmp/app
 
 # Whether to explicitly set owner/group
 #template_tree_owner: someuser
@@ -28,23 +28,33 @@ template_tree_filename_regex: '.*'
 # Useful for stripping j2 extenstions etc.
 template_tree_filename_transform_regex: '\.j2'
 
-# Validate files with these extensions.
-# If 'template_tree_only_extensions' is used, the validation
-# can be done on the remainder of the files. This can be
-# useful for example to verify image integrity.
-# Make sure the commands used for validation are available
-# on the remote host.
-template_tree_validate_exts: []
-#template_tree_validate_exts:
+# Optionally validate files.
+# Items in this list consist of:
+# regex:    file name regular expressions
+# validate: the command should be used to validate. This is passed to
+#           either the template or copy module.
+# If 'template_tree_filename_regex' is used to only template a subset of
+# all files, the rest of the files are copied using the 'copy' module.
+# But since this module also support validation, you can also use it here.
+# An example use case would be template a web server directory, where the
+# PHP files are templated, images are copied, but images are also checked
+# for integrity.
+# Make sure the commands used for validation are available on the remote host.
+# Also, make sure the regular expressions do not overlap.
+template_tree_validation: []
+#template_tree_validation:
 #  - name: PHP files
 #    regex: '\.php$'
 #    validate: 'php -l %s'
 #  - name: X.509 certificates
 #    regex: '\.ce?rt$'
-#    validate: openssl x509 -noout -in %s
+#    validate: 'openssl x509 -noout -in %s'
 #  - name: Images
-#    regex: '[^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$'
-#    validate: identify %s
+#    regex: '\.(?i)(jpe?g|png|gif|bmp)$'
+#    validate: 'identify %s'
+#  - name: XML files
+#    regex: '\.xml$'
+#    validate: 'xmllint %s'
 
 
 # Remove remote content

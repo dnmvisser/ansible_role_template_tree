@@ -1,4 +1,10 @@
 ---
+- name: Ensure required variables are set
+  assert:
+    that:
+      - template_tree_src_dir is defined
+      - template_tree_dest_dir is defined
+
 - name: "Find all local content in {{ template_tree_src_dir }}"
   become: false
   connection: local
@@ -9,11 +15,44 @@
     file_type: any
   register: _local
 
-- name: Establish list of directories, templates, and files.
+- name: Prepare list of all files
+  set_fact:
+    _files: "{{ _local | json_query('files[?!isdir]') }}"
+
+
+# TODO put this in a separate file
+# This iterates over items in template_tree_validation, and add the item itself to each
+# file that matches the regex. The result is that each file item contains a 'validate'
+# key that can be used by the template or copy task later.
+- name: Map validation to files
+  set_fact:
+    _files_to_validate: "{{ _files_to_validate | default([]) | union(
+        _files | selectattr('path', 'regex', validate.regex) |
+        map('combine', {'validate': validate.validate} )
+      ) }}"
+  loop: "{{ template_tree_validation }}"
+  loop_control:
+    loop_var: validate
+    label: "{{ validate.name }}"
+
+- set_fact:
+    _files_to_not_validate: "{{ _files|rejectattr('path', 'in', _files_to_validate|json_query('[?validate].path')) }}"
+  when: template_tree_validation|count > 0
+
+- set_fact:
+    _files: "{{ _files_to_validate | union(_files_to_not_validate) }}"
+  when: template_tree_validation|count > 0
+
+
+
+
+
+- name: Establish list of directories, templates, and files
   set_fact:
     _dirs: "{{ _local | json_query('files[?isdir]') }}"
-    _template_files: "{{ _local | json_query('files[?!isdir]') | selectattr('path', 'regex', template_tree_filename_regex) }}"
-    _copy_files: "{{ _local | json_query('files[?!isdir]') | difference (_local | json_query('files[?!isdir]') | selectattr('path', 'regex', template_tree_filename_regex)) }}"
+    _template_files: "{{ _files | selectattr('path', 'regex', template_tree_filename_regex) }}"
+    # A bit of duplication but this way we can have just a single set_fact task
+    _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', template_tree_filename_regex)) }}"
 
 - name: "Ensure directories are available in {{ template_tree_dest_dir }}"
   file:
@@ -34,7 +73,7 @@
     mode: "{{ template_tree_file_mode | default(file.mode) }}"
     owner: "{{ template_tree_owner | default(omit) }}"
     group: "{{ template_tree_group | default(omit) }}"
-    #validate: "{{ validate[file.path|regex_replace('.*\\.(.*?)$','\\1')] | default(omit) }}"
+    validate: "{{ file.validate | default(omit) }}"
   loop: "{{ _template_files }}"
   loop_control:
     loop_var: file
@@ -48,7 +87,7 @@
     mode: "{{ template_tree_file_mode | default(file.mode) }}"
     owner: "{{ template_tree_owner | default(omit) }}"
     group: "{{ template_tree_group | default(omit) }}"
-    #validate: "{{ validate[file.path|regex_replace('.*\\.(.*?)$','\\1')] | default(omit) }}"
+    validate: "{{ file.validate | default(omit) }}"
   loop: "{{ _copy_files }}"
   loop_control:
     loop_var: file
