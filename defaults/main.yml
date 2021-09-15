@@ -3,19 +3,21 @@
 template_tree_src_dir: /opt/templates/app/config
 template_tree_dest_dir: /etc/app
 
-# Template only files with these extensions, and
-# just copy the rest.
+# Limit templating to source file name regex.
+# By default we template everything ('^$').
+# The files names that do NOT match this regex will be copied as-is.
 # Useful for mixed content like scripts, images, etc.
-template_tree_only_extensions: []
-#template_tree_only_extensions:
-#  - php
-#  - j2
+# See https://docs.python.org/3/library/re.html#regular-expression-syntax
+# and the inline flags
+template_tree_filename_regex: '.*'
+#template_tree_file_regex: '^\.(php|html|css)$'
+#template_tree_file_regex: '(?i)^\.(php|html|css)$' # case insensitive
 
-# Strip these extension from source file names
-template_tree_strip_extensions:
-  - j2
-  - jinja2
-  - jinja
+
+
+# Transform the source file names using a regex.
+# Useful for stripping j2 extenstions etc.
+template_tree_filename_transform_regex: '\.j2'
 
 # Validate files with these extensions.
 # If 'template_tree_only_extensions' is used, the validation
