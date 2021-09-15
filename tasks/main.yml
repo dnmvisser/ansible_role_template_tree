@@ -1,0 +1,53 @@
+---
+
+- name: "Find all local content in {{ template_tree_src_dir }}"
+  become: false
+  connection: local
+  find:
+    paths: "{{ template_tree_src_dir }}"
+    recurse: true
+    hidden: true
+    file_type: any
+  register: _local
+
+- name: "Ensure directories are available in {{ template_tree_dest_dir }}"
+  file:
+    path: "{{ template_tree_dest_dir ~ '/' ~ ( dir.path | relpath(template_tree_src_dir))  }}"
+    state: directory
+    mode: "{{ dir.mode }}"
+  loop: "{{ _local | json_query('files[?isdir]') }}"
+  loop_control:
+    loop_var: dir
+    label: "{{ dir.path | relpath(template_tree_src_dir) }}"
+
+
+- name: "Ensure files are templated in {{ template_tree_dest_dir }}"
+  template:
+    src: '{{ file.path }}'
+    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
+    mode: '{{ file.mode }}'
+    validate: "{{ validate[file.path|regex_replace('.*\\.(.*?)$','\\1')] | default(omit) }}"
+  loop: "{{ _local | json_query('files[?!isdir]') }}"
+  loop_control:
+    loop_var: file
+    label: "{{ file.path | relpath(template_tree_dest_dir) }}"
+  register: simplesamlphp_template_tree_results
+
+- name: Orphan removal logic
+  block:
+    - name: Find all remote content
+      find:
+        paths: "{{ template_tree_dest_dir }}"
+        recurse: true
+        file_type: any
+        hidden: true
+      register: _remote
+
+    - name: Ensure remote content is removed
+      file:
+        path: "{{ template_tree_dest_dir }}/{{ item }}"
+        state: absent
+      loop: "{{ _remote | json_query('files[].path') | map('relpath', template_tree_dest_dir) | list |
+        difference( _local | json_query('files[].path') | map('relpath', template_tree_src_dir) | list) }}"
+
+  when: template_tree_delete|bool

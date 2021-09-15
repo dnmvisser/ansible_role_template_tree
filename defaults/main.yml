@@ -1,0 +1,40 @@
+---
+# defaults file for ansible_role_template_tree
+template_tree_src_dir: /opt/templates/app/config
+template_tree_dest_dir: /etc/app
+
+# Template only files with these extensions, and
+# just copy the rest.
+# Useful for mixed content like scripts, images, etc.
+template_tree_only_extensions: []
+#template_tree_only_extensions:
+#  - php
+#  - j2
+
+# Strip these extension from source file names
+template_tree_strip_extensions:
+  - j2
+  - jinja2
+  - jinja
+
+# Validate files with these extensions.
+# If 'template_tree_only_extensions' is used, the validation
+# can be done on the remainder of the files. This can be
+# useful for example to verify image integrity.
+# Make sure the commands used for validation are available
+# on the remote host.
+template_tree_validate_exts: []
+#template_tree_validate_exts:
+#  - name: PHP files
+#    regex: '\.php$'
+#    validate: 'php -l %s'
+#  - name: X.509 certificates
+#    regex: '\.ce?rt$'
+#    validate: openssl x509 -noout -in %s
+#  - name: Images
+#    regex: '[^\\s]+(\\.(?i)(jpe?g|png|gif|bmp))$'
+#    validate: identify %s
+
+
+# Remove remote content
+template_tree_delete: false
