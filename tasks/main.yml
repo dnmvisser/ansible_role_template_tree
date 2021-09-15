@@ -15,37 +15,13 @@
     file_type: any
   register: _local
 
-- name: Prepare list of all files
+- name: Create list of all files
   set_fact:
     _files: "{{ _local | json_query('files[?!isdir]') }}"
 
-
-# TODO put this in a separate file
-# This iterates over items in template_tree_validation, and add the item itself to each
-# file that matches the regex. The result is that each file item contains a 'validate'
-# key that can be used by the template or copy task later.
-- name: Map validation to files
-  set_fact:
-    _files_to_validate: "{{ _files_to_validate | default([]) | union(
-        _files | selectattr('path', 'regex', validate.regex) |
-        map('combine', {'validate': validate.validate} )
-      ) }}"
-  loop: "{{ template_tree_validation }}"
-  loop_control:
-    loop_var: validate
-    label: "{{ validate.name }}"
-
-- set_fact:
-    _files_to_not_validate: "{{ _files|rejectattr('path', 'in', _files_to_validate|json_query('[?validate].path')) }}"
-  when: template_tree_validation|count > 0
-
-- set_fact:
-    _files: "{{ _files_to_validate | union(_files_to_not_validate) }}"
-  when: template_tree_validation|count > 0
-
-
-
-
+- name: Include validation tasks
+  include_tasks: validate.yml
+  when: template_tree_validation|length > 0
 
 - name: Establish list of directories, templates, and files
   set_fact:
@@ -78,9 +54,8 @@
   loop_control:
     loop_var: file
     label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
-  register: simplesamlphp_template_tree_template_results
 
-- name: Ensure files are copied
+- name: Ensure remainder files are copied as-is
   copy:
     src: '{{ file.path }}'
     dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
@@ -92,7 +67,6 @@
   loop_control:
     loop_var: file
     label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
-  register: simplesamlphp_template_tree_file_results
 
 - name: Include deletion tasks
   include_tasks: delete.yml
