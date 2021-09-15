@@ -1,0 +1,15 @@
+---
+- name: Find remote content
+  find:
+    paths: "{{ template_tree_dest_dir }}"
+    recurse: true
+    file_type: any
+    hidden: true
+  register: _remote
+
+- name: Ensure remote content is removed
+  file:
+    path: "{{ template_tree_dest_dir }}/{{ item }}"
+    state: absent
+  loop: "{{ _remote | json_query('files[].path') | map('relpath', template_tree_dest_dir) | list |
+    difference( _local | json_query('files[].path') | map('relpath', template_tree_src_dir) | list) }}"

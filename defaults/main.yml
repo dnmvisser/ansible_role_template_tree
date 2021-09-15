@@ -3,6 +3,15 @@
 template_tree_src_dir: /opt/templates/app/config
 template_tree_dest_dir: /etc/app
 
+# Whether to explicitly set owner/group
+#template_tree_owner: someuser
+#template_tree_group: somegroup
+
+# By default the file/directory modes are retained.
+# But you can explicitly set them if needed
+# template_tree_dir_mode: "0770"
+# template_tree_file_mode: "0440"
+
 # Limit templating to source file name regex.
 # By default we template everything ('^$').
 # The files names that do NOT match this regex will be copied as-is.

@@ -9,7 +9,8 @@
     file_type: any
   register: _local
 
-- set_fact:
+- name: Establish list of directories, templates, and files.
+  set_fact:
     _dirs: "{{ _local | json_query('files[?isdir]') }}"
     _template_files: "{{ _local | json_query('files[?!isdir]') | selectattr('path', 'regex', template_tree_filename_regex) }}"
     _copy_files: "{{ _local | json_query('files[?!isdir]') | difference (_local | json_query('files[?!isdir]') | selectattr('path', 'regex', template_tree_filename_regex)) }}"
@@ -18,7 +19,9 @@
   file:
     path: "{{ template_tree_dest_dir ~ '/' ~ ( dir.path | relpath(template_tree_src_dir))  }}"
     state: directory
-    mode: "{{ dir.mode }}"
+    mode: "{{ template_tree_dir_mode | default(dir.mode) }}"
+    owner: "{{ template_tree_owner | default(omit) }}"
+    group: "{{ template_tree_group | default(omit) }}"
   loop: "{{ _dirs }}"
   loop_control:
     loop_var: dir
@@ -28,7 +31,9 @@
   template:
     src: '{{ file.path }}'
     dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
-    mode: '{{ file.mode }}'
+    mode: "{{ template_tree_file_mode | default(file.mode) }}"
+    owner: "{{ template_tree_owner | default(omit) }}"
+    group: "{{ template_tree_group | default(omit) }}"
     #validate: "{{ validate[file.path|regex_replace('.*\\.(.*?)$','\\1')] | default(omit) }}"
   loop: "{{ _template_files }}"
   loop_control:
@@ -40,7 +45,9 @@
   copy:
     src: '{{ file.path }}'
     dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
-    mode: '{{ file.mode }}'
+    mode: "{{ template_tree_file_mode | default(file.mode) }}"
+    owner: "{{ template_tree_owner | default(omit) }}"
+    group: "{{ template_tree_group | default(omit) }}"
     #validate: "{{ validate[file.path|regex_replace('.*\\.(.*?)$','\\1')] | default(omit) }}"
   loop: "{{ _copy_files }}"
   loop_control:
@@ -48,21 +55,6 @@
     label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
   register: simplesamlphp_template_tree_file_results
 
-- name: Orphan removal logic
-  block:
-    - name: Find remote content
-      find:
-        paths: "{{ template_tree_dest_dir }}"
-        recurse: true
-        file_type: any
-        hidden: true
-      register: _remote
-
-    - name: Ensure remote content is removed
-      file:
-        path: "{{ template_tree_dest_dir }}/{{ item }}"
-        state: absent
-      loop: "{{ _remote | json_query('files[].path') | map('relpath', template_tree_dest_dir) | list |
-        difference( _local | json_query('files[].path') | map('relpath', template_tree_src_dir) | list) }}"
-
+- name: Include deletion tasks
+  include_tasks: delete.yml
   when: template_tree_delete|bool
