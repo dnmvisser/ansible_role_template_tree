@@ -1,5 +1,5 @@
 ---
-# defaults file for ansible_role_template_tree
+# These are mandatory - we don't supply defaults
 #template_tree_src_dir: /opt/templates/app/config
 #template_tree_dest_dir: /tmp/app
 
@@ -19,14 +19,13 @@
 # See https://docs.python.org/3/library/re.html#regular-expression-syntax
 # and the inline flags
 template_tree_filename_regex: '.*'
-#template_tree_file_regex: '^\.(php|html|css)$'
+#template_tree_file_regex: '^\.(php|html|css)(\.j2)?$'
 #template_tree_file_regex: '(?i)^\.(php|html|css)$' # case insensitive
 
 
-
-# Transform the source file names using a regex.
-# Useful for stripping j2 extenstions etc.
-template_tree_filename_transform_regex: '\.j2'
+# Remove part(s) of the source file names using a regex.
+# Useful for stripping jinja extenstions (the default)
+template_tree_filename_strip_regex: '\.(j2)$'
 
 # Optionally validate files.
 # Items in this list consist of:
@@ -40,11 +39,12 @@ template_tree_filename_transform_regex: '\.j2'
 # PHP files are templated, images are copied, but images are also checked
 # for integrity.
 # Make sure the commands used for validation are available on the remote host.
-# Also, make sure the regular expressions do not overlap.
+# Make sure to include any .j2 matching in the regex.
+# Make sure the regular expressions do not overlap.
 template_tree_validation: []
 #template_tree_validation:
 #  - name: PHP files
-#    regex: '\.php$'
+#    regex: '\.php(\.j2)?$'
 #    validate: 'php -l %s'
 #  - name: X.509 certificates
 #    regex: '\.ce?rt$'
@@ -53,9 +53,14 @@ template_tree_validation: []
 #    regex: '\.(?i)(jpe?g|png|gif|bmp)$'
 #    validate: 'identify %s'
 #  - name: XML files
-#    regex: '\.xml$'
+#    regex: '\.xml(\.j2)?$'
 #    validate: 'xmllint %s'
-
+#  - name: YAML files
+#    regex: '\.ya?ml$'
+#    validate: 'yamllint -d relaxed %s'
+#  - name: JSON files
+#    regex: '\.json$'
+#    validate: 'jsonlint %s'
 
 # Remove remote content
 template_tree_delete: false
