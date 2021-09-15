@@ -19,6 +19,9 @@
   set_fact:
     _files: "{{ _local | json_query('files[?!isdir]') }}"
 
+- name: Include file renaming tasks
+  include_tasks: rename.yml
+
 - name: Include validation tasks
   include_tasks: validate.yml
   when: template_tree_validation|length > 0
@@ -30,6 +33,7 @@
     # A bit of duplication but this way we can have just a single set_fact task
     _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', template_tree_filename_regex)) }}"
 
+#- debug: var=_dirs|union(_files)
 - name: "Ensure directories are available in {{ template_tree_dest_dir }}"
   file:
     path: "{{ template_tree_dest_dir ~ '/' ~ ( dir.path | relpath(template_tree_src_dir))  }}"
@@ -45,7 +49,7 @@
 - name: Ensure files are templated
   template:
     src: '{{ file.path }}'
-    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
+    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
     mode: "{{ template_tree_file_mode | default(file.mode) }}"
     owner: "{{ template_tree_owner | default(omit) }}"
     group: "{{ template_tree_group | default(omit) }}"
@@ -53,12 +57,12 @@
   loop: "{{ _template_files }}"
   loop_control:
     loop_var: file
-    label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
+    label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
 
 - name: Ensure remainder files are copied as-is
   copy:
     src: '{{ file.path }}'
-    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
+    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
     mode: "{{ template_tree_file_mode | default(file.mode) }}"
     owner: "{{ template_tree_owner | default(omit) }}"
     group: "{{ template_tree_group | default(omit) }}"
@@ -66,7 +70,7 @@
   loop: "{{ _copy_files }}"
   loop_control:
     loop_var: file
-    label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.path | relpath(template_tree_src_dir))  }}"
+    label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
 
 - name: Include deletion tasks
   include_tasks: delete.yml

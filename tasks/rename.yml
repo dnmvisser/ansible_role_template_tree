@@ -1,0 +1,19 @@
+---
+- name: Create list of files to rename
+  set_fact:
+    _files_to_rename: "{{ _files_to_rename | default([]) | union(
+       [file] | selectattr('path', 'regex', template_tree_filename_strip_regex) |
+       map('combine', {'new_path': file.path | regex_replace(template_tree_filename_strip_regex, '') } )
+      ) }}"
+  loop: "{{ _files }}"
+  loop_control:
+    loop_var: file
+    label: "{{ file.path }}"
+
+- name: Create list of files to not rename
+  set_fact:
+    _files_to_not_rename: "{{ _files|rejectattr('path', 'in', _files_to_rename|json_query('[?new_path].path')) }}"
+
+- name: Create list of all of files, with rename info
+  set_fact:
+    _files: "{{ _files_to_rename | union(_files_to_not_rename) }}"
