@@ -16,7 +16,9 @@
 
 - name: Ensure remote content is removed
   file:
-    path: "{{ tt_dest_dir }}/{{ item }}"
+    path: "{{ tt_dest_dir }}/{{ remotepath }}"
     state: absent
   loop: "{{ _remote_paths|difference(_local_paths) }}"
+  loop_control:
+    loop_var: remotepath
   register: tt_result_delete

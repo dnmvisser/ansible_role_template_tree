@@ -1,12 +1,14 @@
 ---
 - name: Ensure required variables are set
   assert:
-    that: "{{ item }} is defined"
-    fail_msg: "Required variable '{{ item }}' is not defined, exiting."
+    that: "{{ varname }} is defined"
+    fail_msg: "Required variable '{{ varname }}' is not defined, exiting."
     quiet: true
   loop:
     - tt_src_dir
     - tt_dest_dir
+  loop_control:
+    loop_var: varname
 
 - name: "Find all local content in {{ tt_src_dir }}"
   become: false
