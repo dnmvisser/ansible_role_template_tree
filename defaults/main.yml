@@ -12,13 +12,14 @@
 # tt_dir_mode: "0770"
 # tt_file_mode: "0440"
 
-# Limit templating to source file name regex.
-# By default we template everything ('^$').
-# The files names that do NOT match this regex will be copied as-is.
+# Limit templating to file names matching this regex pattern.
+# The default is to template all files ('.*').
+# Files names that do not match this pattern will not be
+# templated, but copied as-is.
 # Useful for mixed content like scripts, images, etc.
 # See https://docs.python.org/3/library/re.html#regular-expression-syntax
-# and the inline flags
-tt_filename_regex: '.*'
+# Notably the inline flags to influence behavior like case senstivity.
+tt_template_pattern: '.*'
 #tt_file_regex: '^\.(php|html|css)(\.j2)?$'
 #tt_file_regex: '(?i)^\.(php|html|css)$' # case insensitive
 
