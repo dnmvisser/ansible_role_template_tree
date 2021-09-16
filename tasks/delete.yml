@@ -1,20 +1,20 @@
 ---
 - name: Find remote content
   find:
-    paths: "{{ template_tree_dest_dir }}"
+    paths: "{{ tt_dest_dir }}"
     recurse: true
     file_type: any
     hidden: true
   register: _remote
 
 - set_fact:
-    _remote_paths: "{{ _remote| json_query('files[].path') | map('relpath', template_tree_dest_dir) }}"
+    _remote_paths: "{{ _remote| json_query('files[].path') | map('relpath', tt_dest_dir) }}"
     _local_paths: "{{_files_to_rename|json_query('[].new_path') | union(
       _files_to_not_rename|union(_dirs)|json_query('[].path')) |
-      map('relpath', template_tree_src_dir) }}"
+      map('relpath', tt_src_dir) }}"
 
 - name: Ensure remote content is removed
   file:
-    path: "{{ template_tree_dest_dir }}/{{ item }}"
+    path: "{{ tt_dest_dir }}/{{ item }}"
     state: absent
   loop: "{{ _remote_paths|difference(_local_paths) }}"

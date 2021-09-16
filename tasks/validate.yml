@@ -1,5 +1,5 @@
 ---
-# This iterates over items in template_tree_validation, and add the item itself to each
+# This iterates over items in tt_validation, and add the item itself to each
 # file that matches the regex. The result is that each file item contains a 'validate'
 # key that can be used by the template or copy task later.
 - name: Create list of files to validate
@@ -8,7 +8,7 @@
         _files | selectattr('path', 'regex', validate.regex) |
         map('combine', {'validate': validate.validate} )
       ) }}"
-  loop: "{{ template_tree_validation }}"
+  loop: "{{ tt_validation }}"
   loop_control:
     loop_var: validate
     label: "{{ validate.regex|default(validate.name) }}"

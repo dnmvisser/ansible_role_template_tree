@@ -2,14 +2,14 @@
 - name: Ensure required variables are set
   assert:
     that:
-      - template_tree_src_dir is defined
-      - template_tree_dest_dir is defined
+      - tt_src_dir is defined
+      - tt_dest_dir is defined
 
-- name: "Find all local content in {{ template_tree_src_dir }}"
+- name: "Find all local content in {{ tt_src_dir }}"
   become: false
   connection: local
   find:
-    paths: "{{ template_tree_src_dir }}"
+    paths: "{{ tt_src_dir }}"
     recurse: true
     hidden: true
     file_type: any
@@ -24,54 +24,54 @@
 
 - name: Include validation tasks
   include_tasks: validate.yml
-  when: template_tree_validation|length > 0
+  when: tt_validation|length > 0
 
 - name: Establish list of directories, templates, and files
   set_fact:
     _dirs: "{{ _local | json_query('files[?isdir]') }}"
-    _template_files: "{{ _files | selectattr('path', 'regex', template_tree_filename_regex) }}"
+    _template_files: "{{ _files | selectattr('path', 'regex', tt_filename_regex) }}"
     # A bit of duplication but this way we can have just a single set_fact task
-    _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', template_tree_filename_regex)) }}"
+    _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', tt_filename_regex)) }}"
 
 #- debug: var=_dirs|union(_files)
-- name: "Ensure directories are available in {{ template_tree_dest_dir }}"
+- name: "Ensure directories are available in {{ tt_dest_dir }}"
   file:
-    path: "{{ template_tree_dest_dir ~ '/' ~ ( dir.path | relpath(template_tree_src_dir))  }}"
+    path: "{{ tt_dest_dir ~ '/' ~ ( dir.path | relpath(tt_src_dir))  }}"
     state: directory
-    mode: "{{ template_tree_dir_mode | default(dir.mode) }}"
-    owner: "{{ template_tree_owner | default(omit) }}"
-    group: "{{ template_tree_group | default(omit) }}"
+    mode: "{{ tt_dir_mode | default(dir.mode) }}"
+    owner: "{{ tt_owner | default(omit) }}"
+    group: "{{ tt_group | default(omit) }}"
   loop: "{{ _dirs }}"
   loop_control:
     loop_var: dir
-    label: "{{ dir.path | relpath(template_tree_src_dir) }}"
+    label: "{{ dir.path | relpath(tt_src_dir) }}"
 
 - name: Ensure files are templated
   template:
     src: '{{ file.path }}'
-    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
-    mode: "{{ template_tree_file_mode | default(file.mode) }}"
-    owner: "{{ template_tree_owner | default(omit) }}"
-    group: "{{ template_tree_group | default(omit) }}"
+    dest: "{{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+    mode: "{{ tt_file_mode | default(file.mode) }}"
+    owner: "{{ tt_owner | default(omit) }}"
+    group: "{{ tt_group | default(omit) }}"
     validate: "{{ file.validate | default(omit) }}"
   loop: "{{ _template_files }}"
   loop_control:
     loop_var: file
-    label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
+    label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
 
 - name: Ensure remainder files are copied as-is
   copy:
     src: '{{ file.path }}'
-    dest: "{{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
-    mode: "{{ template_tree_file_mode | default(file.mode) }}"
-    owner: "{{ template_tree_owner | default(omit) }}"
-    group: "{{ template_tree_group | default(omit) }}"
+    dest: "{{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+    mode: "{{ tt_file_mode | default(file.mode) }}"
+    owner: "{{ tt_owner | default(omit) }}"
+    group: "{{ tt_group | default(omit) }}"
     validate: "{{ file.validate | default(omit) }}"
   loop: "{{ _copy_files }}"
   loop_control:
     loop_var: file
-    label: " {{ file.path }} => {{ template_tree_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(template_tree_src_dir)) }}"
+    label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
 
 - name: Include deletion tasks
   include_tasks: delete.yml
-  when: template_tree_delete|bool
+  when: tt_delete|bool
