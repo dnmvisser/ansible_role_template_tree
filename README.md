@@ -43,7 +43,7 @@ Benefits over `template` + `filetree` or `fileglob` lookup:
 
 # Example 2
 
-Same as above, but also verify the integrity of any images using the `identity` command (from the ImageMagick package):
+Same as above, but also verify the integrity of any images using the `identify` command (from the ImageMagick package):
 
 ```yaml
 - hosts: web
@@ -63,7 +63,7 @@ Same as above, but also verify the integrity of any images using the `identity` 
             validate: 'php -l %s'
           - desc: Image files
             pattern: '\.(?i)(jpe?g|png|gif|bmp)$'
-            validate: 'identity %s'
+            validate: 'identify %s'
 ```
 
 # Example 3

@@ -38,9 +38,6 @@ tt_strip_pattern: '\.(j2)$'
 # If 'tt_template_regex' is used to only template a certain files, the
 # the rest of the files are copied as-is, using the 'copy' module.
 # But since this module also supports validation, you can also use it here.
-# An example use case would be to template a web server directory, where
-# the PHP files are templated and validated, the images are copied, but the
-# images are also checked for integrity using ImageMagick 'identity' command.
 # Make sure the commands used for validation are available on the remote host.
 # Make sure to include any .j2 matching in the regex.
 # Make sure the regular expressions do not overlap.
