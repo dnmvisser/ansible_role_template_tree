@@ -5,15 +5,15 @@ Deploys an entire directory of templates.
 Benefits over `template` + `filetree` or `fileglob` lookup:
 
 - Supports deletion of remote content that is not available locally (i.e.
-  _synching_).
-- Configurable set of file names patterns to template, so that the rest of the
+  _syncing_).
+- Configurable set of file name patterns to template, so that the rest of the
   files are not templated but copied as-is. Useful for mixed content, for
   example a web server directory containing both scripts and images.
 - Configurable file validation per file name pattern. Useful to validate
   PHP, python, XML, JSON, YAML, etc.
 - Files that are not templated but copied as-is can also be validated. This can
   be useful for example to verify the integrity of images, zip files, etc.
-- Can strip part(s) of the file name. Default to stripping `.j2` extensions.
+- Can strip part(s) of the file name. Defaults to stripping `.j2` extensions.
 
 
 # Example 1
@@ -72,7 +72,7 @@ Same as above, but also verify the integrity of any images using the `identify` 
 - Template all files
 - Validate the XML files using `xmllint`
 
-An extra task is needed to implement the 'changed' behavior.
+An extra task is needed to mimic the template module's 'changed' behavior.
 
 
 ```yaml
