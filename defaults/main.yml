@@ -20,8 +20,8 @@
 # See https://docs.python.org/3/library/re.html#regular-expression-syntax
 # Notably the inline flags to influence behavior like case senstivity.
 tt_template_pattern: '.*'
-# tt_file_regex: '\.(php|html?|css)(\.j2)?$'
-# tt_file_regex: '(?i)\.(php|html?|css)(\.j2)?$' # same but case insensitive
+# tt_template_pattern: '\.(php|html?|css)(\.j2)?$'
+# tt_template_pattern: '(?i)\.(php|html?|css)(\.j2)?$' # same but case insensitive
 
 
 # Strip part(s) of the source file names that match this regex pattern.
@@ -31,7 +31,7 @@ tt_strip_pattern: '\.(j2)$'
 
 # Validate files names that match a list of regex patterns.
 # Items in this list consist of:
-# regex:    file name regular expressions
+# pattern:    file name regex pattern
 # validate: the command should be used to validate. This is passed to
 #           either the template or copy module.
 # desc:     optional description
@@ -44,25 +44,25 @@ tt_strip_pattern: '\.(j2)$'
 # Make sure the commands used for validation are available on the remote host.
 # Make sure to include any .j2 matching in the regex.
 # Make sure the regular expressions do not overlap.
-tt_validation: []
-#tt_validation:
+tt_validate: []
+#tt_validate:
 #  - desc: PHP files
-#    regex: '\.php(\.j2)?$'
+#    pattern: '\.php(\.j2)?$'
 #    validate: 'php -l %s'
 #  - desc: X.509 certificates
-#    regex: '\.ce?rt$'
+#    pattern: '\.ce?rt$'
 #    validate: 'openssl x509 -noout -in %s'
 #  - desc: Images
-#    regex: '\.(?i)(jpe?g|png|gif|bmp)$'
+#    pattern: '\.(?i)(jpe?g|png|gif|bmp)$'
 #    validate: 'identify %s'
 #  - desc: XML files
-#    regex: '\.xml(\.j2)?$'
+#    pattern: '\.xml(\.j2)?$'
 #    validate: 'xmllint %s'
 #  - desc: YAML files
-#    regex: '\.ya?ml$'
+#    pattern: '\.ya?ml$'
 #    validate: 'yamllint -d relaxed %s'
 #  - desc: JSON files
-#    regex: '\.json$'
+#    pattern: '\.json$'
 #    validate: 'jsonlint %s'
 
 # Remove remote content

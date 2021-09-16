@@ -27,7 +27,7 @@
 
 - name: Include validation tasks
   include_tasks: validate.yml
-  when: tt_validation|length > 0
+  when: tt_validate|length > 0
 
 - name: Establish list of directories, templates, and files
   set_fact:
@@ -47,6 +47,7 @@
   loop_control:
     loop_var: dir
     label: "{{ dir.path | relpath(tt_src_dir) }}"
+  register: tt_result_dirs
 
 - name: Ensure files are templated
   template:
@@ -60,6 +61,7 @@
   loop_control:
     loop_var: file
     label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+  register: tt_result_templates
 
 - name: Ensure remainder files are copied as-is
   copy:
@@ -73,7 +75,17 @@
   loop_control:
     loop_var: file
     label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+  register: tt_result_files
 
 - name: Include deletion tasks
   include_tasks: delete.yml
   when: tt_delete|bool
+
+- name: Set changed status
+  set_fact:
+    tt_changed: "{{ [
+      tt_result_dirs.changed,
+      tt_result_templates.changed,
+      tt_result_files.changed,
+      tt_result_delete.changed
+      ] | max }}"
