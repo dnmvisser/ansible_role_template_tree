@@ -7,7 +7,8 @@
     hidden: true
   register: _remote
 
-- set_fact:
+- name: Establish lists of local and remote content
+  set_fact:
     _remote_paths: "{{ _remote| json_query('files[].path') | map('relpath', tt_dest_dir) }}"
     _local_paths: "{{_files_to_rename|json_query('[].new_path') | union(
       _files_to_not_rename|union(_dirs)|json_query('[].path')) |

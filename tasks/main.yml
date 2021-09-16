@@ -1,9 +1,12 @@
 ---
 - name: Ensure required variables are set
   assert:
-    that:
-      - tt_src_dir is defined
-      - tt_dest_dir is defined
+    that: "{{ item }} is defined"
+    fail_msg: "Required variable '{{ item }}' is not defined, exiting."
+    quiet: true
+  loop:
+    - tt_src_dir
+    - tt_dest_dir
 
 - name: "Find all local content in {{ tt_src_dir }}"
   become: false
@@ -33,8 +36,7 @@
     # A bit of duplication but this way we can have just a single set_fact task
     _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', tt_filename_regex)) }}"
 
-#- debug: var=_dirs|union(_files)
-- name: "Ensure directories are available in {{ tt_dest_dir }}"
+- name: "Ensure directories are available at {{ tt_dest_dir }}"
   file:
     path: "{{ tt_dest_dir ~ '/' ~ ( dir.path | relpath(tt_src_dir))  }}"
     state: directory
