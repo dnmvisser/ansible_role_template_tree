@@ -11,7 +11,7 @@
   loop: "{{ tt_validation }}"
   loop_control:
     loop_var: validate
-    label: "{{ validate.regex|default(validate.name) }}"
+    label: "{{ validate.desc|default(validate.regex) }}"
 
 - name: Create list of files to not validate
   set_fact:

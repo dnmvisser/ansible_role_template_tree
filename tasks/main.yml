@@ -32,9 +32,9 @@
 - name: Establish list of directories, templates, and files
   set_fact:
     _dirs: "{{ _local | json_query('files[?isdir]') }}"
-    _template_files: "{{ _files | selectattr('path', 'regex', tt_filename_regex) }}"
+    _template_files: "{{ _files | selectattr('path', 'regex', tt_template_pattern) }}"
     # A bit of duplication but this way we can have just a single set_fact task
-    _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', tt_filename_regex)) }}"
+    _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', tt_template_pattern)) }}"
 
 - name: "Ensure directories are available at {{ tt_dest_dir }}"
   file:

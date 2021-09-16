@@ -20,48 +20,51 @@
 # See https://docs.python.org/3/library/re.html#regular-expression-syntax
 # Notably the inline flags to influence behavior like case senstivity.
 tt_template_pattern: '.*'
-#tt_file_regex: '^\.(php|html|css)(\.j2)?$'
-#tt_file_regex: '(?i)^\.(php|html|css)$' # case insensitive
+# tt_file_regex: '\.(php|html?|css)(\.j2)?$'
+# tt_file_regex: '(?i)\.(php|html?|css)(\.j2)?$' # same but case insensitive
 
 
-# Remove part(s) of the source file names using a regex.
-# Useful for stripping jinja extenstions (the default)
-tt_filename_strip_regex: '\.(j2)$'
+# Strip part(s) of the source file names that match this regex pattern.
+# Useful for stripping jinja extenstions (the default).
+tt_strip_pattern: '\.(j2)$'
 
-# Optionally validate files.
+
+# Validate files names that match a list of regex patterns.
 # Items in this list consist of:
 # regex:    file name regular expressions
 # validate: the command should be used to validate. This is passed to
 #           either the template or copy module.
-# If 'tt_filename_regex' is used to only template a subset of
-# all files, the rest of the files are copied using the 'copy' module.
-# But since this module also support validation, you can also use it here.
-# An example use case would be template a web server directory, where the
-# PHP files are templated, images are copied, but images are also checked
-# for integrity.
+# desc:     optional description
+# If 'tt_template_regex' is used to only template a certain files, the
+# the rest of the files are copied as-is, using the 'copy' module.
+# But since this module also supports validation, you can also use it here.
+# An example use case would be to template a web server directory, where
+# the PHP files are templated and validated, the images are copied, but the
+# images are also checked for integrity using ImageMagick 'identity' command.
 # Make sure the commands used for validation are available on the remote host.
 # Make sure to include any .j2 matching in the regex.
 # Make sure the regular expressions do not overlap.
 tt_validation: []
 #tt_validation:
-#  - name: PHP files
+#  - desc: PHP files
 #    regex: '\.php(\.j2)?$'
 #    validate: 'php -l %s'
-#  - name: X.509 certificates
+#  - desc: X.509 certificates
 #    regex: '\.ce?rt$'
 #    validate: 'openssl x509 -noout -in %s'
-#  - name: Images
+#  - desc: Images
 #    regex: '\.(?i)(jpe?g|png|gif|bmp)$'
 #    validate: 'identify %s'
-#  - name: XML files
+#  - desc: XML files
 #    regex: '\.xml(\.j2)?$'
 #    validate: 'xmllint %s'
-#  - name: YAML files
+#  - desc: YAML files
 #    regex: '\.ya?ml$'
 #    validate: 'yamllint -d relaxed %s'
-#  - name: JSON files
+#  - desc: JSON files
 #    regex: '\.json$'
 #    validate: 'jsonlint %s'
 
 # Remove remote content
+# Enabling this will result in a 'synced' directory
 tt_delete: false

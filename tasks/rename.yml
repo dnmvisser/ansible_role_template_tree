@@ -2,8 +2,8 @@
 - name: Create list of files to rename
   set_fact:
     _files_to_rename: "{{ _files_to_rename | default([]) | union(
-       [file] | selectattr('path', 'regex', tt_filename_strip_regex) |
-       map('combine', {'new_path': file.path | regex_replace(tt_filename_strip_regex, '') } )
+       [file] | selectattr('path', 'regex', tt_strip_pattern) |
+       map('combine', {'new_path': file.path | regex_replace(tt_strip_pattern, '') } )
       ) }}"
   loop: "{{ _files }}"
   loop_control:
