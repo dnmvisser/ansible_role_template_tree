@@ -1,10 +1,12 @@
 ---
+- name: Initialise variables
+  set_fact:
+    _files_to_validate: []
+    _files_to_not_validate: []
+
 # This iterates over items in tt_validate, and add the item itself to each
 # file that matches the regex. The result is that each file item contains a 'validate'
 # key that can be used by the template or copy task later.
-- debug: var=instance
-- debug: var=_files
-- debug: var=_files|count
 
 - name: Create list of files to validate
   set_fact:
@@ -16,11 +18,6 @@
   loop_control:
     loop_var: v
     label: "{{ v.desc|default(v.pattern) }}"
-
-# This has now doubled
-- debug: var=_files_to_validate
-- debug: var=_files_to_validate|count
-
 
 - name: Create list of files to not validate
   set_fact:

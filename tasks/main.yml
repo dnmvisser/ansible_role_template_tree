@@ -34,14 +34,9 @@
 - name: Include file renaming tasks
   include_tasks: rename.yml
 
-#- debug: var=_files
-
-#FIXME things go wrong in here!!!
 - name: Include validation tasks
   include_tasks: validate.yml
   when: tt_validate|length > 0
-
-#- debug: var=_files
 
 - name: Establish list of directories, templates, and files
   set_fact:
@@ -49,8 +44,6 @@
     _template_files: "{{ _files | selectattr('path', 'regex', tt_template_pattern) }}"
     # A bit of duplication but this way we can have just a single set_fact task
     _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', tt_template_pattern)) }}"
-
-#- debug: var=_template_files
 
 - name: "Ensure directories are available at {{ tt_dest_dir }}"
   file:
