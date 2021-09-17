@@ -1,4 +1,9 @@
 ---
+- name: Set defaults
+  set_fact:
+    _files_to_rename: []
+    _files_to_not_rename: []
+
 - name: Create list of files to rename
   set_fact:
     _files_to_rename: "{{ _files_to_rename | default([]) | union(

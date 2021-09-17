@@ -65,3 +65,10 @@ tt_validate: []
 # Remove remote content
 # Enabling this will result in a 'synced' directory
 tt_delete: false
+
+
+
+# Defaults for inside tasks - these shouldn't be changed
+_files: []
+_files_to_rename: []
+_files_to_not_rename: []
