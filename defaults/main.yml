@@ -69,6 +69,6 @@ tt_delete: false
 
 
 # Defaults for inside tasks - these shouldn't be changed
-_files: []
-_files_to_rename: []
-_files_to_not_rename: []
+#_files: []
+#_files_to_rename: []
+#_files_to_not_rename: []
