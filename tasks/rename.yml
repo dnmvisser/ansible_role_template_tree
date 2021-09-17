@@ -1,4 +1,10 @@
 ---
+- name: Initialise variables
+  set_fact:
+    _files_to_rename: []
+    _files_to_not_rename: []
+
+# FIXME do this more efficiently, if possible without looping over all files...
 - name: Create list of files to rename
   set_fact:
     _files_to_rename: "{{ _files_to_rename | default([]) | union(
