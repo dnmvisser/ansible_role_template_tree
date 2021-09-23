@@ -72,3 +72,12 @@ tt_delete: false
 #_files: []
 #_files_to_rename: []
 #_files_to_not_rename: []
+tt_result_dirs: {}
+tt_result_templates: {}
+tt_result_files: {}
+tt_result_delete: {}
+
+tt_dirs_changed: false
+tt_templates_changed: false
+tt_files_changed: false
+tt_delete_changed: false

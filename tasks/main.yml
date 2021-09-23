@@ -58,6 +58,11 @@
     label: "{{ dir.path | relpath(tt_src_dir) }}"
   register: tt_result_dirs
 
+- name: Set changed status for directories
+  set_fact:
+    tt_dirs_changed: true
+  when: tt_result_dirs.changed|bool
+
 - name: Ensure files are templated
   template:
     src: '{{ file.path }}'
@@ -70,8 +75,12 @@
   loop_control:
     loop_var: file
     label: " {{ file.new_path|default(file.path) }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
-    #label: " {{ file.new_path|default(file.path) }} => {{ file.new_path|default(file.path) | relpath(tt_src_dir)  }}"
   register: tt_result_templates
+
+- name: Set changed status for templates
+  set_fact:
+    tt_templates_changed: true
+  when: tt_result_templates.changed|bool
 
 - name: Ensure remainder files are copied as-is
   copy:
@@ -87,15 +96,21 @@
     label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
   register: tt_result_files
 
+- name: Set changed status for files
+  set_fact:
+    tt_files_changed: true
+  when: tt_result_files.changed|bool
+
 - name: Include deletion tasks
   include_tasks: delete.yml
   when: tt_delete|bool
 
+# 'max(list of bools)' returns true if any of them is true
 - name: Set changed status
   set_fact:
     tt_changed: "{{ [
-      tt_result_dirs.changed,
-      tt_result_templates.changed,
-      tt_result_files.changed,
-      tt_result_delete.changed|default(false)
+      tt_dirs_changed,
+      tt_templates_changed,
+      tt_files_changed,
+      tt_delete_changed
       ] | max }}"
