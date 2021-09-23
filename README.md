@@ -72,7 +72,9 @@ Same as above, but also verify the integrity of any images using the `identify` 
 - Template all files
 - Validate the XML files using `xmllint`
 
-An extra task is needed to mimic the template module's 'changed' behavior.
+Including roles [does not support a 'changed'
+feature](https://github.com/ansible/ansible/issues/26537). Therefore, an extra task
+is needed to implement this logic.
 
 
 ```yaml
