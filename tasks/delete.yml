@@ -26,4 +26,4 @@
 - name: Set changed status for deleted content
   set_fact:
     tt_delete_changed: true
-  when: "{{ tt_result_delete.changed|bool }}"
+  when: tt_result_delete.changed|bool

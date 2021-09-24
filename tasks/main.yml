@@ -20,13 +20,6 @@
     file_type: any
   register: _local
 
-- name: Ensure that we have some files at least
-  assert:
-    that:
-      - _local.files|count > 0
-    fail_msg: "{{ tt_src_dir }} does not exist or has no content"
-    quiet: true
-
 - name: Create list of all files
   set_fact:
     _files: "{{ _local | json_query('files[?!isdir]') }}"
