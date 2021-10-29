@@ -14,11 +14,15 @@
       _files_to_not_rename|union(_dirs)|json_query('[].path')) |
       map('relpath', tt_src_dir) }}"
 
+- name: Set content to be removed
+  set_fact:
+    _remove: "{{ _remote_paths|difference(_local_paths) | reject('regex', tt_exclude_pattern) }}"
+
 - name: Ensure remote content is removed
   file:
     path: "{{ tt_dest_dir }}/{{ remotepath }}"
     state: absent
-  loop: "{{ _remote_paths|difference(_local_paths) }}"
+  loop: "{{ _remove }}"
   loop_control:
     loop_var: remotepath
   register: tt_result_delete

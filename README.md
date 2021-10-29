@@ -19,6 +19,8 @@ Benefits over `template` + `filetree` or `fileglob` lookup:
 # Example 1
 
 - Sync a web server directory
+- Deletes all remote content that is not available locally - except the `.cache`
+  directory
 - Template all `.php`, `.html`, and `.css` files
 - Copy all other files as-is
 - Validate all `.php` files
@@ -35,6 +37,7 @@ Benefits over `template` + `filetree` or `fileglob` lookup:
         tt_dest_dir: /var/www/html
         tt_template_pattern: '\.(php|html|css)$'
         tt_delete: yes
+        tt_exclude_pattern: '^.cache'
         tt_validate:
           - desc: PHP files
             pattern: '\.php$'
@@ -57,6 +60,7 @@ Same as above, but also verify the integrity of any images using the `identify` 
         tt_dest_dir: /var/www/html
         tt_template_pattern: '\.(php|html|css)$'
         tt_delete: yes
+        tt_exclude_pattern: '^.cache'
         tt_validate:
           - desc: PHP files
             pattern: '\.php$'
