@@ -19,7 +19,7 @@ Benefits over `template` + `filetree` or `fileglob` lookup:
 # Example 1
 
 - Sync a web server directory
-- Deletes all remote content that is not available locally - except the `.cache`
+- Delete all remote content that is not available locally - except the `.cache`
   directory
 - Template all `.php`, `.html`, and `.css` files
 - Copy all other files as-is
