@@ -37,7 +37,7 @@ Benefits over `template` + `filetree` or `fileglob` lookup:
         tt_dest_dir: /var/www/html
         tt_template_pattern: '\.(php|html|css)$'
         tt_delete: yes
-        tt_exclude_pattern: '^.cache'
+        tt_delete_exclude_pattern: '^.cache'
         tt_validate:
           - desc: PHP files
             pattern: '\.php$'
@@ -60,7 +60,7 @@ Same as above, but also verify the integrity of any images using the `identify` 
         tt_dest_dir: /var/www/html
         tt_template_pattern: '\.(php|html|css)$'
         tt_delete: yes
-        tt_exclude_pattern: '^.cache'
+        tt_delete_exclude_pattern: '^.cache'
         tt_validate:
           - desc: PHP files
             pattern: '\.php$'

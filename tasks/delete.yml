@@ -16,7 +16,7 @@
 
 - name: Set content to be removed
   set_fact:
-    _remove: "{{ _remote_paths|difference(_local_paths) | reject('regex', tt_exclude_pattern) }}"
+    _remove: "{{ _remote_paths|difference(_local_paths) | reject('regex', tt_delete_exclude_pattern) }}"
 
 - name: Ensure remote content is removed
   file:

@@ -71,9 +71,9 @@ tt_delete: false
 # Only makes sense if tt_delete is true.
 # If you need deeply nested content to stay, ensure all the paths
 # are mentioned, for example:
-# tt_exclude_patterns: '^a|a/b|a/b/c|d.conf$'
+# tt_delete_exclude_pattern: '^a|a/b|a/b/c|d.conf$'
 # Defaults to empty pattern (so nothing gets excluded)
-tt_exclude_pattern: '^$'
+tt_delete_exclude_pattern: '^$'
 
 
 # Defaults for inside tasks - these shouldn't be changed
