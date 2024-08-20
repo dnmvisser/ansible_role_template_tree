@@ -1,6 +1,6 @@
 ---
 - name: Find remote content
-  find:
+  ansible.builtin.find:
     paths: "{{ tt_dest_dir }}"
     recurse: true
     file_type: any
@@ -8,18 +8,18 @@
   register: _remote
 
 - name: Establish lists of local and remote content
-  set_fact:
+  ansible.builtin.set_fact:
     _remote_paths: "{{ _remote| json_query('files[].path') | map('relpath', tt_dest_dir) }}"
-    _local_paths: "{{_files_to_rename|json_query('[].new_path') | union(
-      _files_to_not_rename|union(_dirs)|json_query('[].path')) |
+    _local_paths: "{{_files_to_rename | json_query('[].new_path') | union(
+      _files_to_not_rename | union(_dirs) | json_query('[].path')) |
       map('relpath', tt_src_dir) }}"
 
 - name: Set content to be removed
-  set_fact:
-    _remove: "{{ _remote_paths|difference(_local_paths) | reject('regex', tt_delete_exclude_pattern) }}"
+  ansible.builtin.set_fact:
+    _remove: "{{ _remote_paths | difference(_local_paths) | reject('regex', tt_delete_exclude_pattern) }}"
 
 - name: Ensure remote content is removed
-  file:
+  ansible.builtin.file:
     path: "{{ tt_dest_dir }}/{{ remotepath }}"
     state: absent
   loop: "{{ _remove }}"
@@ -28,6 +28,6 @@
   register: tt_result_delete
 
 - name: Set changed status for deleted content
-  set_fact:
+  ansible.builtin.set_fact:
     tt_delete_changed: true
-  when: tt_result_delete.changed|bool
+  when: tt_result_delete.changed | bool

@@ -1,6 +1,6 @@
 ---
 - name: Ensure required variables are set
-  assert:
+  ansible.builtin.assert:
     that: "{{ varname }} is defined"
     fail_msg: "Required variable '{{ varname }}' is not defined, exiting."
     quiet: true
@@ -13,7 +13,7 @@
 - name: "Find all local content in {{ tt_src_dir }}"
   become: false
   connection: local
-  find:
+  ansible.builtin.find:
     paths: "{{ tt_src_dir }}"
     recurse: true
     hidden: true
@@ -21,25 +21,25 @@
   register: _local
 
 - name: Create list of all files
-  set_fact:
+  ansible.builtin.set_fact:
     _files: "{{ _local | json_query('files[?!isdir]') }}"
 
 - name: Include file renaming tasks
-  include_tasks: rename.yml
+  ansible.builtin.include_tasks: rename.yml
 
 - name: Include validation tasks
-  include_tasks: validate.yml
+  ansible.builtin.include_tasks: validate.yml
   when: tt_validate|length > 0
 
 - name: Establish list of directories, templates, and files
-  set_fact:
+  ansible.builtin.set_fact:
     _dirs: "{{ _local | json_query('files[?isdir]') }}"
     _template_files: "{{ _files | selectattr('path', 'regex', tt_template_pattern) }}"
     # A bit of duplication but this way we can have just a single set_fact task
     _copy_files: "{{ _files | difference (_files | selectattr('path', 'regex', tt_template_pattern)) }}"
 
 - name: "Ensure directories are available at {{ tt_dest_dir }}"
-  file:
+  ansible.builtin.file:
     path: "{{ tt_dest_dir ~ '/' ~ ( dir.path | relpath(tt_src_dir))  }}"
     state: directory
     mode: "{{ tt_dir_mode | default(dir.mode) }}"
@@ -52,14 +52,14 @@
   register: tt_result_dirs
 
 - name: Set changed status for directories
-  set_fact:
+  ansible.builtin.set_fact:
     tt_dirs_changed: true
   when: tt_result_dirs.changed|bool
 
 - name: Ensure files are templated
-  template:
+  ansible.builtin.template:
     src: '{{ file.path }}'
-    dest: "{{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+    dest: "{{ tt_dest_dir ~ '/' ~ ( file.new_path | default(file.path) | relpath(tt_src_dir)) }}"
     mode: "{{ tt_file_mode | default(file.mode) }}"
     owner: "{{ tt_owner | default(omit) }}"
     group: "{{ tt_group | default(omit) }}"
@@ -67,18 +67,18 @@
   loop: "{{ _template_files }}"
   loop_control:
     loop_var: file
-    label: " {{ file.new_path|default(file.path) }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+    label: " {{ file.new_path | default(file.path) }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path | default(file.path) | relpath(tt_src_dir)) }}"
   register: tt_result_templates
 
 - name: Set changed status for templates
-  set_fact:
+  ansible.builtin.set_fact:
     tt_templates_changed: true
   when: tt_result_templates.changed|bool
 
 - name: Ensure remainder files are copied as-is
-  copy:
+  ansible.builtin.copy:
     src: '{{ file.path }}'
-    dest: "{{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+    dest: "{{ tt_dest_dir ~ '/' ~ ( file.new_path | default(file.path) | relpath(tt_src_dir)) }}"
     mode: "{{ tt_file_mode | default(file.mode) }}"
     owner: "{{ tt_owner | default(omit) }}"
     group: "{{ tt_group | default(omit) }}"
@@ -86,24 +86,19 @@
   loop: "{{ _copy_files }}"
   loop_control:
     loop_var: file
-    label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path|default(file.path) | relpath(tt_src_dir)) }}"
+    label: " {{ file.path }} => {{ tt_dest_dir ~ '/' ~ ( file.new_path | default(file.path) | relpath(tt_src_dir)) }}"
   register: tt_result_files
 
 - name: Set changed status for files
-  set_fact:
+  ansible.builtin.set_fact:
     tt_files_changed: true
   when: tt_result_files.changed|bool
 
 - name: Include deletion tasks
-  include_tasks: delete.yml
+  ansible.builtin.include_tasks: delete.yml
   when: tt_delete|bool
 
 # 'max(list of bools)' returns true if any of them is true
 - name: Set changed status
-  set_fact:
-    tt_changed: "{{ [
-      tt_dirs_changed,
-      tt_templates_changed,
-      tt_files_changed,
-      tt_delete_changed
-      ] | max }}"
+  ansible.builtin.set_fact:
+    tt_changed: "{{ [tt_dirs_changed, tt_templates_changed, tt_files_changed, tt_delete_changed] | max }}"
