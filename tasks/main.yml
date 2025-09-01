@@ -12,7 +12,7 @@
 
 - name: "Find all local content in {{ tt_src_dir }}"
   become: false
-  connection: local
+  delegate_to: localhost
   find:
     paths: "{{ tt_src_dir }}"
     recurse: true
