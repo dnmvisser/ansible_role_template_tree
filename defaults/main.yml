@@ -1,11 +1,11 @@
 ---
 # These are mandatory - we don't supply defaults
-#tt_src_dir: /opt/templates/app/config
-#tt_dest_dir: /tmp/app
+# tt_src_dir: /opt/templates/app/config
+# tt_dest_dir: /tmp/app
 
 # Whether to explicitly set owner/group
-#tt_owner: someuser
-#tt_group: somegroup
+# tt_owner: someuser
+# tt_group: somegroup
 
 # By default the file/directory modes are retained.
 # But you can explicitly set them if needed
@@ -42,7 +42,7 @@ tt_strip_pattern: '\.(j2)$'
 # Make sure to include any .j2 matching in the regex.
 # Make sure the regular expressions do not overlap.
 tt_validate: []
-#tt_validate:
+# tt_validate:
 #  - desc: PHP files
 #    pattern: '\.php(\.j2)?$'
 #    validate: 'php -l %s'
@@ -77,9 +77,9 @@ tt_delete_exclude_pattern: '^$'
 
 
 # Defaults for inside tasks - these shouldn't be changed
-#_files: []
-#_files_to_rename: []
-#_files_to_not_rename: []
+# _files: []
+# _files_to_rename: []
+# _files_to_not_rename: []
 tt_result_dirs: {}
 tt_result_templates: {}
 tt_result_files: {}
