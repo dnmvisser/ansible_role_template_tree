@@ -1,7 +1,7 @@
 ---
 - name: Ensure required variables are set
   assert:
-    that: "{{ varname }} is defined"
+    that: "lookup('vars', varname) is defined"
     fail_msg: "Required variable '{{ varname }}' is not defined, exiting."
     quiet: true
   loop:
